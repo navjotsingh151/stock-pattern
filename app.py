@@ -52,7 +52,7 @@ def main():
 
     with st.expander("Help"):
         st.write(
-            """Rules:\n- BUY X shares if hourly price >= (1 - X/100) * day open.\n- SELL 50% of position when portfolio value >= 120% of book cost.\nEvaluation order per bar: SELL then BUY."""
+            """Rules:\n- BUY X shares if hourly price <= (1 - X/100) * day open.\n- SELL 50% of position when portfolio value >= 120% of book cost.\nEvaluation order per bar: SELL then BUY."""
         )
 
 
