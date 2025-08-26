@@ -20,12 +20,14 @@ def render_kpis(kpis: dict):
 
 def render_table(trades_df: pd.DataFrame):
     """Render trades table with highlighting and download."""
-    if trades_df.empty:
-        st.info("No trades executed.")
-        return
 
     def highlight(row):
-        color = "background-color: yellow" if row.Action == "BUY" else "background-color: lightgreen"
+        if row.Action == "BUY":
+            color = "background-color: yellow"
+        elif row.Action == "SELL":
+            color = "background-color: lightgreen"
+        else:
+            color = ""
         return [color] * len(row)
 
     styled = trades_df.style.apply(highlight, axis=1).format(

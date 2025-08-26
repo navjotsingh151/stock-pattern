@@ -16,8 +16,8 @@ def test_run_backtest_basic():
     hourly_df = pd.DataFrame({"Close": [98, 120, 97]}, index=idx)
     daily_map = {pd.Timestamp("2023-01-01").date(): (100, 102)}
     trades_df, kpis = run_backtest(hourly_df, daily_map, 2)
-    assert len(trades_df) == 3
-    assert list(trades_df["Action"]) == ["BUY", "SELL", "BUY"]
+    assert len(trades_df) == 4  # includes HOLD row
+    assert list(trades_df["Action"]) == ["BUY", "SELL", "BUY", "HOLD"]
     assert kpis["Final PQ"] == 3
     assert kpis["Total Buys"] == 4
     assert kpis["Total Sells"] == 1

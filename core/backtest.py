@@ -35,7 +35,22 @@ def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[fl
         day_open, day_close = day_info
         price = float(row["Close"])
         txns = apply_bar(ts, day_open, day_close, price, portfolio, x_percent)
-        transactions.extend(txns)
+        if txns:
+            transactions.extend(txns)
+        else:
+            transactions.append(
+                {
+                    "Date": ts,
+                    "Open Price": day_open,
+                    "Close Price": day_close,
+                    "Transaction Price": price,
+                    "Action": "HOLD",
+                    "Portfolio Value": portfolio.value(price),
+                    "Portfolio Book Cost": portfolio.book_cost,
+                    "Transaction Quantity": 0.0,
+                    "Portfolio Quantity": portfolio.qty,
+                }
+            )
 
     trades_df = pd.DataFrame(transactions)
 
@@ -47,8 +62,12 @@ def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[fl
         "Final PV": final_pv,
         "Realized PnL": portfolio.realized_pnl,
         "Unrealized PnL": round(final_pv - portfolio.book_cost, 2),
-        "Total Buys": float(trades_df[trades_df["Action"] == "BUY"]["Transaction Quantity"].sum()) if not trades_df.empty else 0.0,
-        "Total Sells": float(trades_df[trades_df["Action"] == "SELL"]["Transaction Quantity"].sum()) if not trades_df.empty else 0.0,
+        "Total Buys": float(
+            trades_df.loc[trades_df["Action"] == "BUY", "Transaction Quantity"].sum()
+        ),
+        "Total Sells": float(
+            trades_df.loc[trades_df["Action"] == "SELL", "Transaction Quantity"].sum()
+        ),
     }
 
     return trades_df, kpis
