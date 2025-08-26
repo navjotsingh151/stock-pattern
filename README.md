@@ -22,16 +22,16 @@ The backtest evaluates each hourly bar in **SELL then BUY** order.
 
 **BUY**
 
-Buy `X` shares when the hourly price is less than or equal to `(1 - X/100)`
+Buy `X` shares when the hourly price is greater than or equal to `(1 - X/100)`
 times the day's open. For example, with a day open of `100` and `X = 2`, any
-hourly price of `98` or below will trigger a purchase of two shares at that
+hourly price of `98` or above will trigger a purchase of two shares at that
 price. Only one BUY is allowed per day; after a BUY executes, additional BUYs
 are suppressed until the next trading day.
 
 **SELL**
 
-If the portfolio value reaches or exceeds 120% of its book cost, sell 50% of
-the current position.
+If the portfolio value reaches or exceeds `Y%` of its book cost (default 110%),
+sell 50% of the current position.
 
 ## Portfolio Calculations
 

@@ -16,7 +16,7 @@ def main():
     st.title("Hourly Backtest")
     st.caption("Evaluation order per bar: SELL then BUY")
 
-    ticker, x_percent, run_btn = sidebar_inputs()
+    ticker, x_percent, y_percent, run_btn = sidebar_inputs()
 
     if run_btn:
         if not ticker:
@@ -41,7 +41,7 @@ def main():
             idx.date(): (row["Open"], row["Close"]) for idx, row in daily_df.iterrows()
         }
 
-        trades_df, kpis = run_backtest(hourly_df, daily_map, x_percent)
+        trades_df, kpis = run_backtest(hourly_df, daily_map, x_percent, y_percent)
 
         st.subheader("Results")
         st.text(f"Timezone: {timezone}")
@@ -52,7 +52,7 @@ def main():
 
     with st.expander("Help"):
         st.write(
-            """Rules:\n- BUY X shares if hourly price <= (1 - X/100) * day open.\n- SELL 50% of position when portfolio value >= 120% of book cost.\nEvaluation order per bar: SELL then BUY."""
+            """Rules:\n- BUY X shares if hourly price ≥ (1 - X/100) × day open.\n- SELL 50% of position when portfolio value ≥ Y% of book cost (default 110%).\nEvaluation order per bar: SELL then BUY."""
         )
 
 

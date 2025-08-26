@@ -13,6 +13,7 @@ def run_backtest(
     hourly_df: pd.DataFrame,
     daily_map: Dict[pd.Timestamp, Tuple[float, float]],
     x_percent: int,
+    y_percent: int = 110,
 ):
     """Run the backtest and return trades and KPI summary.
 
@@ -23,7 +24,9 @@ def run_backtest(
     daily_map : dict
         Mapping of ``date`` -> ``(open, close)``.
     x_percent : int
-        Strategy threshold X.
+        BUY threshold X.
+    y_percent : int, default 110
+        SELL threshold Y as a percentage of book cost.
 
     Returns
     -------
@@ -43,7 +46,14 @@ def run_backtest(
             price = float(row["Close"])
             allow_buy = day not in bought_days
             txns = apply_bar(
-                ts, day_open, day_close, price, portfolio, x_percent, allow_buy=allow_buy
+                ts,
+                day_open,
+                day_close,
+                price,
+                portfolio,
+                x_percent,
+                y_percent,
+                allow_buy=allow_buy,
             )
             if txns:
                 transactions.extend(txns)
