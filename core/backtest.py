@@ -37,20 +37,6 @@ def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[fl
         txns = apply_bar(ts, day_open, day_close, price, portfolio, x_percent)
         if txns:
             transactions.extend(txns)
-        else:
-            transactions.append(
-                {
-                    "Date": ts,
-                    "Open Price": day_open,
-                    "Close Price": day_close,
-                    "Transaction Price": price,
-                    "Action": "HOLD",
-                    "Portfolio Value": portfolio.value(price),
-                    "Portfolio Book Cost": portfolio.book_cost,
-                    "Transaction Quantity": 0.0,
-                    "Portfolio Quantity": portfolio.qty,
-                }
-            )
 
     trades_df = pd.DataFrame(transactions)
 
