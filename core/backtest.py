@@ -27,6 +27,7 @@ def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[fl
     """
     portfolio = Portfolio()
     transactions = []
+    bought_days = set()
 
     for ts, row in hourly_df.iterrows():
         day_info = daily_map.get(ts.date())
@@ -34,9 +35,15 @@ def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[fl
             continue
         day_open, day_close = day_info
         price = float(row["Close"])
-        txns = apply_bar(ts, day_open, day_close, price, portfolio, x_percent)
+
+        allow_buy = ts.date() not in bought_days
+        txns = apply_bar(
+            ts, day_open, day_close, price, portfolio, x_percent, allow_buy=allow_buy
+        )
         if txns:
             transactions.extend(txns)
+            if any(t["Action"] == "BUY" for t in txns):
+                bought_days.add(ts.date())
 
     trades_df = pd.DataFrame(transactions)
 

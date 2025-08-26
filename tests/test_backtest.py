@@ -13,11 +13,10 @@ def test_run_backtest_basic():
         pd.Timestamp("2023-01-01 11:00"),
         pd.Timestamp("2023-01-01 12:00"),
     ]
-    hourly_df = pd.DataFrame({"Close": [98, 120, 97]}, index=idx)
+    hourly_df = pd.DataFrame({"Close": [98, 97, 120]}, index=idx)
     daily_map = {pd.Timestamp("2023-01-01").date(): (100, 102)}
     trades_df, kpis = run_backtest(hourly_df, daily_map, 2)
-    assert len(trades_df) == 3
-    assert list(trades_df["Action"]) == ["BUY", "SELL", "BUY"]
-    assert kpis["Final PQ"] == 3
-    assert kpis["Total Buys"] == 4
+    assert list(trades_df["Action"]) == ["BUY", "SELL"]
+    assert kpis["Final PQ"] == 1
+    assert kpis["Total Buys"] == 2
     assert kpis["Total Sells"] == 1

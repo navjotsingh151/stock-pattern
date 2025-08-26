@@ -37,3 +37,12 @@ def test_apply_bar_sell_then_buy():
     assert txns[1]["Action"] == "BUY"
     # After sell then buy: qty should be 3
     assert p.qty == 3
+
+
+def test_apply_bar_buy_blocked():
+    p = Portfolio()
+    ts = pd.Timestamp("2023-01-01 11:00")
+    # Even though price triggers a buy, allow_buy=False prevents it
+    txns = apply_bar(ts, 100, 102, 98, p, 2, allow_buy=False)
+    assert txns == []
+    assert p.qty == 0

@@ -37,7 +37,15 @@ def buy_qty(x_percent: int) -> int:
     return int(x_percent)
 
 
-def apply_bar(ts, day_open, day_close, price, portfolio: Portfolio, x_percent: int) -> List[Dict[str, Any]]:
+def apply_bar(
+    ts,
+    day_open,
+    day_close,
+    price,
+    portfolio: Portfolio,
+    x_percent: int,
+    allow_buy: bool = True,
+) -> List[Dict[str, Any]]:
     """Apply strategy on a single bar.
 
     Parameters
@@ -82,7 +90,7 @@ def apply_bar(ts, day_open, day_close, price, portfolio: Portfolio, x_percent: i
         )
 
     # BUY evaluation (after potential sell)
-    if should_buy(price, day_open, x_percent):
+    if allow_buy and should_buy(price, day_open, x_percent):
         qty = buy_qty(x_percent)
         portfolio.buy(qty, price)
         transactions.append(
