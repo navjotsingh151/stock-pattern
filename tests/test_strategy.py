@@ -20,8 +20,8 @@ def test_rules():
     assert should_sell(120, 10, 1000, 120)
 
     assert should_buy(98, 100, 2)  # equality at threshold should buy
-    assert should_buy(100, 100, 2)
-    assert not should_buy(97, 100, 2)
+    assert should_buy(97, 100, 2)
+    assert not should_buy(99, 100, 2)
 
     assert sell_qty(10) == 5
     assert buy_qty(5) == 5

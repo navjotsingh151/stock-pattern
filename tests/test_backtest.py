@@ -28,7 +28,7 @@ def test_hold_row_added():
         pd.Timestamp("2023-01-01 11:00"),
         pd.Timestamp("2023-01-02 10:00"),
     ]
-    hourly_df = pd.DataFrame({"Close": [98, 97, 100]}, index=idx)
+    hourly_df = pd.DataFrame({"Close": [98, 97, 103]}, index=idx)
     daily_map = {
         pd.Timestamp("2023-01-01").date(): (100, 102),
         pd.Timestamp("2023-01-02").date(): (104, 106),
