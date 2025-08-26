@@ -20,3 +20,21 @@ def test_run_backtest_basic():
     assert kpis["Final PQ"] == 1
     assert kpis["Total Buys"] == 2
     assert kpis["Total Sells"] == 1
+
+
+def test_hold_row_added():
+    idx = [
+        pd.Timestamp("2023-01-01 10:00"),
+        pd.Timestamp("2023-01-01 11:00"),
+        pd.Timestamp("2023-01-02 10:00"),
+    ]
+    hourly_df = pd.DataFrame({"Close": [98, 97, 100]}, index=idx)
+    daily_map = {
+        pd.Timestamp("2023-01-01").date(): (100, 102),
+        pd.Timestamp("2023-01-02").date(): (104, 106),
+    }
+    trades_df, _ = run_backtest(hourly_df, daily_map, 2)
+    # Expect a HOLD row for second day since no trades occur on 2023-01-02
+    actions = list(trades_df["Action"])
+    assert actions[0] == "BUY"
+    assert actions[1] == "HOLD"

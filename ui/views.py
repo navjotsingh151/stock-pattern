@@ -61,9 +61,10 @@ def render_chart(hourly_df: pd.DataFrame, trades_df: pd.DataFrame):
         .interactive()
     )
 
-    if not trades_df.empty:
+    trade_points = trades_df[trades_df["Action"].isin(["BUY", "SELL"])]
+    if not trade_points.empty:
         trade_chart = (
-            alt.Chart(trades_df)
+            alt.Chart(trade_points)
             .mark_point(size=80)
             .encode(
                 x="Date:T",

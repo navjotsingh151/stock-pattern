@@ -22,9 +22,9 @@ The backtest evaluates each hourly bar in **SELL then BUY** order.
 
 **BUY**
 
-Buy `X` shares when the hourly price is at most `(1 - X/100)` times the day's
+Buy `X` shares when the hourly price is at least `(1 - X/100)` times the day's
 open. For example, with a day open of `100` and `X = 2`, any hourly price of
-`98` or below will trigger a purchase of two shares at that price. Only one
+`98` or above will trigger a purchase of two shares at that price. Only one
 BUY is allowed per day; after a BUY executes, additional BUYs are suppressed
 until the next trading day.
 
@@ -40,4 +40,5 @@ the current position.
   buy, book cost increases by `qty × price`. On a sell, the cost relieved is
   proportional to the fraction of shares sold.
 
-The table lists only executed trades; hours without transactions are omitted.
+The table includes one row per trading day. Days without a BUY or SELL are
+recorded as `HOLD` rows using the day's close price.

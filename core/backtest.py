@@ -1,4 +1,4 @@
-"""Backtest engine iterating over hourly bars."""
+"""Backtest engine iterating over hourly bars with daily HOLD rows."""
 from __future__ import annotations
 
 from typing import Dict, Tuple
@@ -9,7 +9,11 @@ from .portfolio import Portfolio
 from .strategy import apply_bar
 
 
-def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[float, float]], x_percent: int):
+def run_backtest(
+    hourly_df: pd.DataFrame,
+    daily_map: Dict[pd.Timestamp, Tuple[float, float]],
+    x_percent: int,
+):
     """Run the backtest and return trades and KPI summary.
 
     Parameters
@@ -25,30 +29,51 @@ def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[fl
     -------
     (trades_df, kpis_dict)
     """
+
     portfolio = Portfolio()
     transactions = []
     bought_days = set()
 
-    for ts, row in hourly_df.iterrows():
-        day_info = daily_map.get(ts.date())
-        if not day_info:
-            continue
-        day_open, day_close = day_info
-        price = float(row["Close"])
+    for day in sorted(daily_map.keys()):
+        day_open, day_close = daily_map[day]
+        day_hours = hourly_df[hourly_df.index.date == day]
+        day_has_txn = False
 
-        allow_buy = ts.date() not in bought_days
-        txns = apply_bar(
-            ts, day_open, day_close, price, portfolio, x_percent, allow_buy=allow_buy
-        )
-        if txns:
-            transactions.extend(txns)
-            if any(t["Action"] == "BUY" for t in txns):
-                bought_days.add(ts.date())
+        for ts, row in day_hours.iterrows():
+            price = float(row["Close"])
+            allow_buy = day not in bought_days
+            txns = apply_bar(
+                ts, day_open, day_close, price, portfolio, x_percent, allow_buy=allow_buy
+            )
+            if txns:
+                transactions.extend(txns)
+                day_has_txn = True
+                if any(t["Action"] == "BUY" for t in txns):
+                    bought_days.add(day)
+
+        if not day_has_txn:
+            transactions.append(
+                {
+                    "Date": pd.Timestamp(day),
+                    "Open Price": day_open,
+                    "Close Price": day_close,
+                    "Transaction Price": day_close,
+                    "Action": "HOLD",
+                    "Portfolio Value": portfolio.value(day_close),
+                    "Portfolio Book Cost": portfolio.book_cost,
+                    "Transaction Quantity": 0.0,
+                    "Portfolio Quantity": portfolio.qty,
+                }
+            )
 
     trades_df = pd.DataFrame(transactions)
 
     # KPIs
-    last_price = hourly_df["Close"].iloc[-1] if not hourly_df.empty else 0.0
+    last_price = (
+        hourly_df["Close"].iloc[-1]
+        if not hourly_df.empty
+        else (list(daily_map.values())[-1][1] if daily_map else 0.0)
+    )
     final_pv = portfolio.value(last_price)
     kpis = {
         "Final PQ": portfolio.qty,
@@ -64,3 +89,4 @@ def run_backtest(hourly_df: pd.DataFrame, daily_map: Dict[pd.Timestamp, Tuple[fl
     }
 
     return trades_df, kpis
+
