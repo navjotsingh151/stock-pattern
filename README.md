@@ -31,7 +31,8 @@ are suppressed until the next trading day.
 **SELL**
 
 If the portfolio value reaches or exceeds `Y%` of its book cost (default 110%),
-sell 50% of the current position.
+sell `floor(50% of the current position)` as whole shares. No SELL occurs if
+this would result in zero shares being sold.
 
 ## Portfolio Calculations
 

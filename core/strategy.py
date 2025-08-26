@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 from typing import Dict, List, Any
+import math
 
 from .portfolio import Portfolio
 
 
 def should_sell(price: float, pq: float, pbc: float, y_percent: int = 110) -> bool:
-    """Return ``True`` when portfolio value meets the sell threshold.
+    """Return ``True`` when portfolio value meets the sell threshold and
+    at least one whole share can be sold.
 
     Parameters
     ----------
@@ -23,12 +25,14 @@ def should_sell(price: float, pq: float, pbc: float, y_percent: int = 110) -> bo
     """
     if pq <= 0:
         return False
+    if math.floor(pq * 0.5) < 1:
+        return False
     return price * pq >= (y_percent / 100) * pbc
 
 
-def sell_qty(pq: float) -> float:
-    """Sell 50% of current quantity."""
-    return round(pq * 0.5, 4)
+def sell_qty(pq: float) -> int:
+    """Sell ``floor(50%`` of current quantity) as an integer."""
+    return int(math.floor(pq * 0.5))
 
 
 def should_buy(price: float, day_open: float, x_percent: int) -> bool:
@@ -90,20 +94,21 @@ def apply_bar(
     # SELL evaluation
     if should_sell(price, portfolio.qty, portfolio.book_cost, y_percent):
         qty = sell_qty(portfolio.qty)
-        portfolio.sell(qty, price)
-        transactions.append(
-            {
-                "Date": ts,
-                "Open Price": day_open,
-                "Close Price": day_close,
-                "Transaction Price": price,
-                "Action": "SELL",
-                "Portfolio Value": portfolio.value(price),
-                "Portfolio Book Cost": portfolio.book_cost,
-                "Transaction Quantity": qty,
-                "Portfolio Quantity": portfolio.qty,
-            }
-        )
+        if qty > 0:
+            portfolio.sell(qty, price)
+            transactions.append(
+                {
+                    "Date": ts,
+                    "Open Price": day_open,
+                    "Close Price": day_close,
+                    "Transaction Price": price,
+                    "Action": "SELL",
+                    "Portfolio Value": portfolio.value(price),
+                    "Portfolio Book Cost": portfolio.book_cost,
+                    "Transaction Quantity": qty,
+                    "Portfolio Quantity": portfolio.qty,
+                }
+            )
 
     # BUY evaluation (after potential sell)
     if allow_buy and should_buy(price, day_open, x_percent):
