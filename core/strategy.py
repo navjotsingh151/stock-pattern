@@ -19,17 +19,17 @@ def sell_qty(pq: float) -> float:
 
 
 def should_buy(price: float, day_open: float, x_percent: int) -> bool:
-    """Return ``True`` when the hourly price is high enough to trigger a BUY.
+    """Return ``True`` when the hourly price is low enough to trigger a BUY.
 
-    A BUY is executed if the current hourly price is **greater than or equal**
-    to ``(1 - X/100)`` times the day's open. For example, with ``day_open=100``
-    and ``X=2`` the threshold becomes ``98``. Any price of ``98`` or **above**
+    A BUY is executed if the current hourly price is **less than or equal to**
+    ``(1 - X/100)`` times the day's open. For example, with ``day_open=100``
+    and ``X=2`` the threshold becomes ``98``. Any price of ``98`` or **below**
     will satisfy the condition and we purchase ``X`` shares.
     """
     if day_open is None:
         return False
     threshold = (1 - x_percent / 100) * day_open
-    return price >= threshold
+    return price <= threshold
 
 
 def buy_qty(x_percent: int) -> int:
