@@ -14,7 +14,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Use the sidebar to choose ticker and X% threshold, then run the backtest to view results.
+Use the sidebar to choose ticker, X% threshold, Daily Capacity in dollars, and Y% threshold, then run the backtest to view results.
 
 ## Strategy Rules
 
@@ -22,11 +22,7 @@ The backtest evaluates each hourly bar in **SELL then BUY** order.
 
 **BUY**
 
-Buy `X` shares when the hourly price is less than or equal to `(1 - X/100)`
-times the day's open. For example, with a day open of `100` and `X = 2`, any
-hourly price of `98` or below will trigger a purchase of two shares at that
-price. Only one BUY is allowed per day; after a BUY executes, additional BUYs
-are suppressed until the next trading day.
+Buy shares worth up to the specified Daily Capacity when the hourly price is less than or equal to `(1 - X/100)` times the day's open. For example, with a day open of `100`, `X = 2`, and a Daily Capacity of `200`, any hourly price of `98` or below will trigger a purchase of `200/98 ≈ 2.04` shares at that price. Only one BUY is allowed per day; after a BUY executes, additional BUYs are suppressed until the next trading day.
 
 **SELL**
 
