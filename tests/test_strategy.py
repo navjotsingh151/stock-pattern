@@ -39,9 +39,9 @@ def test_apply_bar_sell_then_buy():
     assert txns[0]["Action"] == "SELL"
     assert txns[0]["Transaction Quantity"] == 1
     assert txns[1]["Action"] == "BUY"
-    assert txns[1]["Transaction Quantity"] == 2.55
-    # After sell then buy: qty should be 3.55
-    assert p.qty == 3.55
+    assert txns[1]["Transaction Quantity"] == 2.6
+    # After sell then buy: qty should be 3.6
+    assert p.qty == 3.6
 
 
 def test_apply_bar_buy_blocked():

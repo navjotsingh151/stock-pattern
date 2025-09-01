@@ -53,12 +53,12 @@ def should_buy(price: float, day_open: float, x_percent: int) -> bool:
 def buy_qty(price: float, capacity: float) -> float:
     """Return quantity purchasable within ``capacity`` dollars at ``price``.
 
-    Quantity is rounded to two decimal places to simulate fractional share
+    Quantity is rounded to one decimal place to simulate fractional share
     purchases.
     """
     if price <= 0:
         return 0.0
-    return round(capacity / price, 2)
+    return round(capacity / price, 1)
 
 
 def apply_bar(
