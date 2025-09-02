@@ -26,27 +26,28 @@ def test_rules():
 
     assert sell_qty(10) == 5
     assert sell_qty(3) == 1
-    assert buy_qty(5) == 5
+    assert buy_qty(100, 250) == 2.5
 
 
 def test_apply_bar_sell_then_buy():
     p = Portfolio()
     p.buy(2, 10)
     ts = pd.Timestamp("2023-01-01 11:00")
-    txns = apply_bar(ts, 100, 102, 98, p, 2, 110)
+    txns = apply_bar(ts, 100, 102, 98, p, 2, 250, 110)
     # Should sell then buy => two transactions
     assert len(txns) == 2
     assert txns[0]["Action"] == "SELL"
     assert txns[0]["Transaction Quantity"] == 1
     assert txns[1]["Action"] == "BUY"
-    # After sell then buy: qty should be 3
-    assert p.qty == 3
+    assert txns[1]["Transaction Quantity"] == 2.6
+    # After sell then buy: qty should be 3.6
+    assert p.qty == 3.6
 
 
 def test_apply_bar_buy_blocked():
     p = Portfolio()
     ts = pd.Timestamp("2023-01-01 11:00")
     # Even though price triggers a buy, allow_buy=False prevents it
-    txns = apply_bar(ts, 100, 102, 98, p, 2, 110, allow_buy=False)
+    txns = apply_bar(ts, 100, 102, 98, p, 2, 250, 110, allow_buy=False)
     assert txns == []
     assert p.qty == 0

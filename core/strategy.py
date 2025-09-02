@@ -41,7 +41,8 @@ def should_buy(price: float, day_open: float, x_percent: int) -> bool:
     A BUY is executed if the current hourly price is **less than or equal**
     to ``(1 - X/100)`` times the day's open. For example, with ``day_open=100``
     and ``X=2`` the threshold becomes ``98``. Any price of ``98`` or **below**
-    will satisfy the condition and we purchase ``X`` shares.
+    will satisfy the condition and permit a purchase up to the dollar
+    capacity.
     """
     if day_open is None:
         return False
@@ -49,9 +50,15 @@ def should_buy(price: float, day_open: float, x_percent: int) -> bool:
     return price <= threshold
 
 
-def buy_qty(x_percent: int) -> int:
-    """Buy floor(x_percent) shares."""
-    return int(x_percent)
+def buy_qty(price: float, capacity: float) -> float:
+    """Return quantity purchasable within ``capacity`` dollars at ``price``.
+
+    Quantity is rounded to one decimal place to simulate fractional share
+    purchases.
+    """
+    if price <= 0:
+        return 0.0
+    return round(capacity / price, 1)
 
 
 def apply_bar(
@@ -61,6 +68,7 @@ def apply_bar(
     price,
     portfolio: Portfolio,
     x_percent: int,
+    capacity: float,
     y_percent: int = 110,
     allow_buy: bool = True,
 ) -> List[Dict[str, Any]]:
@@ -80,6 +88,8 @@ def apply_bar(
         Portfolio instance to mutate.
     x_percent : int
         BUY threshold X in percent.
+    capacity : float
+        Dollar amount available for a BUY.
     y_percent : int, default 110
         SELL threshold Y in percent of book cost.
 
@@ -112,7 +122,7 @@ def apply_bar(
 
     # BUY evaluation (after potential sell)
     if allow_buy and should_buy(price, day_open, x_percent):
-        qty = buy_qty(x_percent)
+        qty = buy_qty(price, capacity)
         portfolio.buy(qty, price)
         transactions.append(
             {
